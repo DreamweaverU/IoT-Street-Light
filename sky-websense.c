@@ -39,6 +39,7 @@
 #include "net/ip/uip.h"
 #include "net/ipv6/uip-ds6.h"
 #include "simple-udp.h"
+#include "random.h"
 
 PROCESS(sensor_process, "Sensor process");
 PROCESS(webserver_nogui_process, "Web server");
@@ -81,7 +82,7 @@ get_light(void)
 static int
 get_proxi(void)
 {
-  return rand() % 2;	//This is a simulated value of a proximity sensor
+  return random_rand() % 2;	//This is a simulated value of a proximity sensor
 }
 
 /************************************************************
@@ -180,6 +181,14 @@ httpd_simple_get_script(const char *name)
 static struct simple_udp_connection broadcast_connection;
 
 static void
+print_ipv6_addr(const uip_ipaddr_t *ip_addr) {
+    int i;
+    for (i = 0; i < 16; i++) {
+        printf("%02x", ip_addr->u8[i]);
+    }
+}
+
+static void
 receiver(struct simple_udp_connection *c,
          const uip_ipaddr_t *sender_addr,
          uint16_t sender_port,
@@ -194,13 +203,6 @@ receiver(struct simple_udp_connection *c,
   
 }
 
-static void
-print_ipv6_addr(const uip_ipaddr_t *ip_addr) {
-    int i;
-    for (i = 0; i < 16; i++) {
-        printf("%02x", ip_addr->u8[i]);
-    }
-}
 
 /************************************************************
  * Define the notification function
