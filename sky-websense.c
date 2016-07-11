@@ -155,7 +155,7 @@ PT_THREAD(send_values(struct httpd_state *s))
       SEND_STRING(&s->sout, buf);
     }
     if(s->filename[1] != 'l') {
-      generate_chart("Proximity", " ", 15, 50, proximity);
+      generate_chart("Proximity", "True/False", 0, 2, proximity);
       SEND_STRING(&s->sout, buf);
     }
   }
@@ -174,7 +174,7 @@ httpd_simple_get_script(const char *name)
 
 void notify_adjacent_nodes()
 {
-	
+	printf("Value changed in proximity sensor reading.\n");
 }
 
 /************************************************************
