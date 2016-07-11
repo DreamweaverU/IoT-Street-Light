@@ -179,12 +179,16 @@ httpd_simple_get_script(const char *name)
  * Define the variables and function for broadcast
  ************************************************************/
 static struct simple_udp_connection broadcast_connection;
+static char ip_buf[32];
 
 static void
 print_ipv6_addr(const uip_ipaddr_t *ip_addr) {
     int i;
+	int len = 0;
+	
     for (i = 0; i < 16; i++) {
         printf("%02x", ip_addr->u8[i]);
+		len += snprintf(ip_buf + len, 2, "%02x", ip_addr->u8[i]);
     }
 }
 
@@ -199,7 +203,7 @@ receiver(struct simple_udp_connection *c,
 {
   printf("Data received on port %d from port %d with length %d\n",
          receiver_port, sender_port, datalen);
-  print_ipv6_addr(sender_addr);
+  printf("IP: %s", ip_buf);
   
 }
 
