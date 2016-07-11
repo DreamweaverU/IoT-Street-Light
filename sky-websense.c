@@ -199,7 +199,7 @@ static void
 notify_adjacent_nodes(int i, uip_ipaddr_t addr)
 {   
 	if(i == 1) {
-		printf("Value changed. Sending broadcast notification");
+		printf("Value changed. Sending broadcast notification...");
 		uip_create_linklocal_allnodes_mcast(&addr);
 		simple_udp_sendto(&broadcast_connection, "DIM_LIGHT", 9, &addr);
 	}
