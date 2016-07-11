@@ -173,7 +173,7 @@ httpd_simple_get_script(const char *name)
 }
 
 void notify_adjacent_nodes()
-{
+{   
 	printf("Value changed in proximity sensor reading.\n");
 }
 
