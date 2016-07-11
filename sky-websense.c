@@ -36,8 +36,9 @@
 #include "dev/light-sensor.h"
 #include "dev/leds.h"
 #include <stdio.h>
-#include "net/rime/rime.h"
- 
+#include "net/ip/uip.h"
+#include "net/ipv6/uip-ds6.h"
+#include "simple-udp.h"
 
 PROCESS(sensor_process, "Sensor process");
 PROCESS(webserver_nogui_process, "Web server");
@@ -61,6 +62,7 @@ PROCESS_THREAD(webserver_nogui_process, ev, data)
 
 AUTOSTART_PROCESSES(&sensor_process, &webserver_nogui_process);
 
+#define UDP_PORT 1000
 #define HISTORY 16		//Totoal number of historical data points
 static int proximity[HISTORY];
 static int light1[HISTORY];
@@ -175,26 +177,32 @@ httpd_simple_get_script(const char *name)
 /************************************************************
  * Define the variables and function for broadcast
  ************************************************************/
+static struct simple_udp_connection broadcast_connection;
+
 static void
-broadcast_recv(struct broadcast_conn *c, const linkaddr_t *from)
+receiver(struct simple_udp_connection *c,
+         const uip_ipaddr_t *sender_addr,
+         uint16_t sender_port,
+         const uip_ipaddr_t *receiver_addr,
+         uint16_t receiver_port,
+         const uint8_t *data,
+         uint16_t datalen)
 {
-  printf("broadcast message received from %d.%d: '%s'\n",
-         from->u8[0], from->u8[1], (char *)packetbuf_dataptr());
+  printf("Data received on port %d from port %d with length %d\n",
+         receiver_port, sender_port, datalen);
 }
-static const struct broadcast_callbacks broadcast_call = {broadcast_recv};
-static struct broadcast_conn broadcast;
 
 /************************************************************
  * Define the notification function
  ************************************************************/
-void notify_adjacent_nodes(int i)
+static void 
+notify_adjacent_nodes(int i, uip_ipaddr_t addr)
 {   
 	if(i == 1) {
-		packetbuf_copyfrom("DIM_LIGHT", 10);
-		broadcast_send(&broadcast);
+		printf("Value changed. Sending broadcast notification");
+		uip_create_linklocal_allnodes_mcast(&addr);
+		simple_udp_sendto(&broadcast_connection, "DIM_LIGHT", 9, &addr);
 	}
-
-	printf("Value changed in proximity sensor reading. Notification was broadcast.\n");
 
 }
 
@@ -204,7 +212,8 @@ void notify_adjacent_nodes(int i)
 PROCESS_THREAD(sensor_process, ev, data)
 {
   static struct etimer timer;
-  PROCESS_EXITHANDLER(broadcast_close(&broadcast);)
+  uip_ipaddr_t addr;
+  
   PROCESS_BEGIN();
 
   hdata_pos = 0;	//reset the historical data point position to 0
@@ -212,12 +221,10 @@ PROCESS_THREAD(sensor_process, ev, data)
 
   etimer_set(&timer, CLOCK_SECOND * 2); //set the reading every 2 s
   SENSORS_ACTIVATE(light_sensor);
-  //SENSORS_ACTIVATE(sht11_sensor);
 
-  broadcast_open(&broadcast, 129, &broadcast_call);
-  
-  /* Start powertracing, once every two seconds. */
-  //powertrace_start(CLOCK_SECOND * 5);  //Not used for now
+  simple_udp_register(&broadcast_connection, UDP_PORT,
+                      NULL, UDP_PORT,
+                      receiver);
 
   while(1) {
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
@@ -230,7 +237,7 @@ PROCESS_THREAD(sensor_process, ev, data)
 	//Check if there is a change in the proximity value
 	if(hdata_pos != 0) {
 		if(proximity[hdata_pos] != proximity[new_hdata_pos]) {
-			notify_adjacent_nodes( proximity[hdata_pos] );
+			notify_adjacent_nodes( proximity[hdata_pos], addr);
 		}
 	}
 

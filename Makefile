@@ -13,7 +13,6 @@ PROJECT_SOURCEFILES += httpd-simple.c
 PROJECT_SOURCEFILES += collect-common.c
 
 CONTIKI_WITH_IPV6 = 1
-CONTIKI_WITH_RIME = 1
 include $(CONTIKI)/Makefile.include
 
 $(CONTIKI)/tools/tunslip6:	$(CONTIKI)/tools/tunslip6.c
