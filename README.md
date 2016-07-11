@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Sky websense
 ============
 
@@ -41,3 +42,6 @@ To run the example on real nodes under Linux
 5. You should now be able to browse to your router node using your web browser:
    http://[<ROUTER IPv6 ADDRESS>]/. On this page you should see a list of all
    accessible nodes with their IP adresses.
+=======
+# IoT-Street-Light
+>>>>>>> 8234ae8a44cdac6fbaf850241c0965aaf6b62fdf
