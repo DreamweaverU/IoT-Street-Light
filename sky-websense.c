@@ -37,7 +37,7 @@
 #include "dev/leds.h"
 #include <stdio.h>
 //#include "powertrace.h"
-#include "net/rime.h"
+#include "net/rime/rime.h"
  
 
 PROCESS(sensor_process, "Sensor process");

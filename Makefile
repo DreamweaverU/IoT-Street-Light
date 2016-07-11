@@ -3,8 +3,6 @@ all: sky-websense
 CONTIKI=../../..
 
 APPS += webbrowser
-APPS += powertrace
-APPS += collect-view
 
 MODULES += core/net/http-socket
 
