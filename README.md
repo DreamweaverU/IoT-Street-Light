@@ -1,5 +1,8 @@
-<<<<<<< HEAD
-Sky websense
+IoT Street Light Example
+
+This is an Internet of Things example application, which shows how to notify the street lights when there is the human presence is detected by a proximity sensor. The Contiki 3.0 on Ubuntu 14.04 is used to run this example. Each street light is considered as the node with an IPv6 address that can respond to the remote HTTP GET requests for retrieving the sensor values. 
+
+Here are some extra instructions on the example application. 
 ============
 
 This example features a simple webserver running on top of the IPv6 contiki
@@ -43,5 +46,3 @@ To run the example on real nodes under Linux
    http://[<ROUTER IPv6 ADDRESS>]/. On this page you should see a list of all
    accessible nodes with their IP adresses.
 =======
-# IoT-Street-Light
->>>>>>> 8234ae8a44cdac6fbaf850241c0965aaf6b62fdf
