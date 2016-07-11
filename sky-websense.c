@@ -188,8 +188,8 @@ receiver(struct simple_udp_connection *c,
          const uint8_t *data,
          uint16_t datalen)
 {
-  printf("Data received on port %d from port %d with length %d\n",
-         receiver_port, sender_port, datalen);
+  printf("Data received on port %d from %d:port %d with length %d\n",
+         receiver_port, uip_ipaddr4(sender_addr), sender_port, datalen);
 }
 
 /************************************************************
