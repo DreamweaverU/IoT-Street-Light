@@ -31,12 +31,12 @@
 
 #include "contiki.h"
 #include "httpd-simple.h"
-#include "dev/sht11/sht11-sensor.h"
+//#include "dev/sht11/sht11-sensor.h"
 #include "dev/light-sensor.h"
 #include "dev/leds.h"
 #include <stdio.h>
 #include "powertrace.h"
-
+ 
 //Collect view
 /*
 #include "net/rpl/rpl.h"
@@ -66,10 +66,10 @@ PROCESS_THREAD(webserver_nogui_process, ev, data)
 
 AUTOSTART_PROCESSES(&web_sense_process,&webserver_nogui_process);//, &collect_common_process);
 
-#define HISTORY 16
-static int temperature[HISTORY];
+#define HISTORY 16    //Totoal number of historical data points
+static int proximity[HISTORY];
 static int light1[HISTORY];
-static int sensors_pos;
+static int sensors_pos;  
 
 /*---------------------------------------------------------------------------*/
 static int
@@ -79,9 +79,9 @@ get_light(void)
 }
 /*---------------------------------------------------------------------------*/
 static int
-get_temp(void)
+get_proxi(void)
 {
-  return ((sht11_sensor.value(SHT11_SENSOR_TEMP) / 10) - 396) / 10;
+  return rand() % 2; //This is a simulated value of a proximity sensor
 }
 /*---------------------------------------------------------------------------*/
 static const char *TOP = "<html><head><title>Lighting Control Demo</title></head><body>\n";
@@ -122,8 +122,8 @@ PT_THREAD(send_values(struct httpd_state *s))
     blen = 0;
     ADD("<h1>Current readings</h1>\n"
         "Light: %u<br>"
-        "Temperature: %u&deg; C",
-        get_light(), get_temp());
+        "Prixmity: %u ",
+        get_light(), get_proxi());
     SEND_STRING(&s->sout, buf);
 
   } else if(s->filename[1] == '0') {
@@ -142,7 +142,7 @@ PT_THREAD(send_values(struct httpd_state *s))
       SEND_STRING(&s->sout, buf);
     }
     if(s->filename[1] != 'l') {
-      generate_chart("Temperature", "Celsius", 15, 50, temperature);
+      generate_chart("Proximity", " ", 15, 50, proximity);
       SEND_STRING(&s->sout, buf);
     }
   }
@@ -167,129 +167,19 @@ PROCESS_THREAD(web_sense_process, ev, data)
 
   etimer_set(&timer, CLOCK_SECOND * 2);
   SENSORS_ACTIVATE(light_sensor);
-  SENSORS_ACTIVATE(sht11_sensor);
+  //SENSORS_ACTIVATE(sht11_sensor);
 
   /* Start powertracing, once every two seconds. */
-  powertrace_start(CLOCK_SECOND * 5);   
+  powertrace_start(CLOCK_SECOND * 5);
 
   while(1) {
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
     etimer_reset(&timer);
 
     light1[sensors_pos] = get_light();;
-    temperature[sensors_pos] = get_temp();
+    proximity[sensors_pos] = get_proxi();
     sensors_pos = (sensors_pos + 1) % HISTORY;
   }
 
   PROCESS_END();
 }
-/*---------------------------------------------------------------------------*/
-
-////////////////////////////
-/*
-void
-collect_common_net_init(void)
-{
-#if CONTIKI_TARGET_Z1
-  uart0_set_input(serial_line_input_byte);
-#else
-  uart1_set_input(serial_line_input_byte);
-#endif
-  serial_line_init();
-}
-
-void
-collect_common_set_sink(void)
-{
-  
-}
-
-void
-collect_common_net_print(void)
-{
-
-  rpl_dag_t *dag;
-  uip_ds6_route_t *r;
-
-  
-  dag = rpl_get_any_dag();
-  if(dag->preferred_parent != NULL) {
-    PRINTF("Preferred parent: ");
-    PRINT6ADDR(rpl_get_parent_ipaddr(dag->preferred_parent));
-    PRINTF("\n");
-  }
-  for(r = uip_ds6_route_head();
-      r != NULL;
-      r = uip_ds6_route_next(r)) {
-    PRINT6ADDR(&r->ipaddr);
-  }
-  PRINTF("---\n");
-
-}
-
-
-void
-collect_common_send(void)
-{
-  static uint8_t seqno;
-  struct {
-    uint8_t seqno;
-    uint8_t for_alignment;
-    struct collect_view_data_msg msg;
-  } msg;
-  // struct collect_neighbor *n; 
-  uint16_t parent_etx;
-  uint16_t rtmetric;
-  uint16_t num_neighbors;
-  uint16_t beacon_interval;
-  rpl_parent_t *preferred_parent;
-  linkaddr_t parent;
-  rpl_dag_t *dag;
-
-  if(client_conn == NULL) {
-    // Not setup yet 
-    return;
-  }
-  memset(&msg, 0, sizeof(msg));
-  seqno++;
-  if(seqno == 0) {
-    // Wrap to 128 to identify restarts
-    seqno = 128;
-  }
-  msg.seqno = seqno;
-
-  linkaddr_copy(&parent, &linkaddr_null);
-  parent_etx = 0;
-
-  // Let's suppose we have only one instance
-  dag = rpl_get_any_dag();
-  if(dag != NULL) {
-    preferred_parent = dag->preferred_parent;
-    if(preferred_parent != NULL) {
-      uip_ds6_nbr_t *nbr;
-      nbr = uip_ds6_nbr_lookup(rpl_get_parent_ipaddr(preferred_parent));
-      if(nbr != NULL) {
-        // Use parts of the IPv6 address as the parent address, in reversed byte order.
-        parent.u8[LINKADDR_SIZE - 1] = nbr->ipaddr.u8[sizeof(uip_ipaddr_t) - 2];
-        parent.u8[LINKADDR_SIZE - 2] = nbr->ipaddr.u8[sizeof(uip_ipaddr_t) - 1];
-        parent_etx = rpl_get_parent_rank((uip_lladdr_t *) uip_ds6_nbr_get_ll(nbr)) / 2;
-      }
-    }
-    rtmetric = dag->rank;
-    beacon_interval = (uint16_t) ((2L << dag->instance->dio_intcurrent) / 1000);
-    num_neighbors = uip_ds6_nbr_num();
-  } else {
-    rtmetric = 0;
-    beacon_interval = 0;
-    num_neighbors = 0;
-  }
-
-  // num_neighbors = collect_neighbor_list_num(&tc.neighbor_list); 
-  collect_view_construct_message(&msg.msg, &parent,
-                                 parent_etx, rtmetric,
-                                 num_neighbors, beacon_interval);
-
-  //uip_udp_packet_sendto(client_conn, &msg, sizeof(msg),
-  //                      &server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
-}
-*/
