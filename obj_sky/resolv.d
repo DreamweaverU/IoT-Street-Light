@@ -17,7 +17,15 @@ obj_sky/resolv.o: ../../../core/net/ip/resolv.c \
  ../../../core/./net/ip/uip.h ../../../core/./net/ip/uipopt.h \
  ../../../core/./net/ip/resolv.h ../../../core/./net/ip/uip.h \
  ../../../core/./net/ip/uip-udp-packet.h \
- ../../../core/./net/ip/uip-nameserver.h ../../../core/./lib/random.h
+ ../../../core/./net/ip/uip-nameserver.h ../../../core/./lib/random.h \
+ ../../../core/./net/ipv6/uip-ds6.h ../../../core/./sys/stimer.h \
+ ../../../core/./net/ipv6/uip-nd6.h \
+ ../../../core/./net/ipv6/uip-ds6-route.h ../../../core/./lib/list.h \
+ ../../../core/./net/ipv6/uip-ds6-nbr.h ../../../core/./net/nbr-table.h \
+ ../../../core/./net/linkaddr.h ../../../core/./net/netstack.h \
+ ../../../core/./net/llsec/llsec.h ../../../core/./net/mac/mac.h \
+ ../../../core/./dev/radio.h ../../../core/./net/mac/rdc.h \
+ ../../../core/./net/mac/framer.h
 ../../../core/net/ip/resolv.c :
  ../../../core/./net/ip/tcpip.h ../../../core/./contiki.h :
  ../../../core/./contiki-version.h ../../../platform/sky/./contiki-conf.h :
@@ -38,3 +46,11 @@ obj_sky/resolv.o: ../../../core/net/ip/resolv.c \
  ../../../core/./net/ip/resolv.h ../../../core/./net/ip/uip.h :
  ../../../core/./net/ip/uip-udp-packet.h :
  ../../../core/./net/ip/uip-nameserver.h ../../../core/./lib/random.h :
+ ../../../core/./net/ipv6/uip-ds6.h ../../../core/./sys/stimer.h :
+ ../../../core/./net/ipv6/uip-nd6.h :
+ ../../../core/./net/ipv6/uip-ds6-route.h ../../../core/./lib/list.h :
+ ../../../core/./net/ipv6/uip-ds6-nbr.h ../../../core/./net/nbr-table.h :
+ ../../../core/./net/linkaddr.h ../../../core/./net/netstack.h :
+ ../../../core/./net/llsec/llsec.h ../../../core/./net/mac/mac.h :
+ ../../../core/./dev/radio.h ../../../core/./net/mac/rdc.h :
+ ../../../core/./net/mac/framer.h :
