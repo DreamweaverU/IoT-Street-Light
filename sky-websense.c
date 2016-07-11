@@ -42,9 +42,9 @@
 PROCESS(sensor_process, "Sensor process");
 PROCESS(webserver_nogui_process, "Web server");
 
-/*********************
+/************************************************************
  * Web server process
- *********************/
+ ************************************************************/
 PROCESS_THREAD(webserver_nogui_process, ev, data)
 {
   PROCESS_BEGIN();
