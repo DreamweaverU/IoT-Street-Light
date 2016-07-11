@@ -38,6 +38,7 @@
 #include <stdio.h>
 //#include "powertrace.h"
 #include "net/rime/rime.h"
+#include "net/rime/broadcast.h"
  
 
 PROCESS(sensor_process, "Sensor process");
@@ -205,6 +206,7 @@ void notify_adjacent_nodes(int i)
 PROCESS_THREAD(sensor_process, ev, data)
 {
   static struct etimer timer;
+  PROCESS_EXITHANDLER(broadcast_close(&broadcast);)
   PROCESS_BEGIN();
 
   hdata_pos = 0;	//reset the historical data point position to 0
