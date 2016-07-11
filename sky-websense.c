@@ -177,7 +177,7 @@ httpd_simple_get_script(const char *name)
  * Define the variables and function for broadcast
  ************************************************************/
 static void
-broadcast_recv(struct broadcast_conn *c, const rimeaddr_t *from)
+broadcast_recv(struct broadcast_conn *c, const linkaddr_t *from)
 {
   printf("broadcast message received from %d.%d: '%s'\n",
          from->u8[0], from->u8[1], (char *)packetbuf_dataptr());
@@ -191,7 +191,7 @@ static struct broadcast_conn broadcast;
 void notify_adjacent_nodes(int i)
 {   
 	if(i == 1) {
-		packetbuf_copyfrom("DIM_LIGHT", 6);
+		packetbuf_copyfrom("DIM_LIGHT", 10);
 		broadcast_send(&broadcast);
 	}
 
