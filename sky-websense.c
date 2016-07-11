@@ -187,7 +187,7 @@ print_ipv6_addr(const uip_ipaddr_t *ip_addr) {
 	int len = 0;
 	
     for (i = 0; i < 16; i++) {
-        printf("%02x", ip_addr->u8[i]);
+        //printf("%02x", ip_addr->u8[i]);
 		len += snprintf(ip_buf + len, 2, "%02x", ip_addr->u8[i]);
     }
 }
@@ -203,7 +203,8 @@ receiver(struct simple_udp_connection *c,
 {
   printf("Data received on port %d from port %d with length %d\n",
          receiver_port, sender_port, datalen);
-  printf("IP: %s", ip_buf);
+  print_ipv6_addr(sender_addr);
+  printf("IP: %s\n", ip_buf);
   
 }
 
