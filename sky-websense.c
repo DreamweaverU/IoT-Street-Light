@@ -36,7 +36,8 @@
 #include "dev/light-sensor.h"
 #include "dev/leds.h"
 #include <stdio.h>
-#include "powertrace.h"
+//#include "powertrace.h"
+#include "net/rime.h"
  
 
 PROCESS(sensor_process, "Sensor process");
@@ -172,9 +173,30 @@ httpd_simple_get_script(const char *name)
   return send_values;
 }
 
-void notify_adjacent_nodes()
+/************************************************************
+ * Define the variables and function for broadcast
+ ************************************************************/
+static void
+broadcast_recv(struct broadcast_conn *c, const rimeaddr_t *from)
+{
+  printf("broadcast message received from %d.%d: '%s'\n",
+         from->u8[0], from->u8[1], (char *)packetbuf_dataptr());
+}
+static const struct broadcast_callbacks broadcast_call = {broadcast_recv};
+static struct broadcast_conn broadcast;
+
+/************************************************************
+ * Define the notification function
+ ************************************************************/
+void notify_adjacent_nodes(int i)
 {   
-	printf("Value changed in proximity sensor reading.\n");
+	if(i == 1) {
+		packetbuf_copyfrom("DIM_LIGHT", 6);
+		broadcast_send(&broadcast);
+	}
+
+	printf("Value changed in proximity sensor reading. Notification was broadcast.\n");
+
 }
 
 /************************************************************
@@ -192,8 +214,10 @@ PROCESS_THREAD(sensor_process, ev, data)
   SENSORS_ACTIVATE(light_sensor);
   //SENSORS_ACTIVATE(sht11_sensor);
 
+  broadcast_open(&broadcast, 129, &broadcast_call);
+  
   /* Start powertracing, once every two seconds. */
-  powertrace_start(CLOCK_SECOND * 5);
+  //powertrace_start(CLOCK_SECOND * 5);  //Not used for now
 
   while(1) {
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
@@ -206,7 +230,7 @@ PROCESS_THREAD(sensor_process, ev, data)
 	//Check if there is a change in the proximity value
 	if(hdata_pos != 0) {
 		if(proximity[hdata_pos] != proximity[new_hdata_pos]) {
-			notify_adjacent_nodes();
+			notify_adjacent_nodes( proximity[hdata_pos] );
 		}
 	}
 
@@ -216,3 +240,4 @@ PROCESS_THREAD(sensor_process, ev, data)
 
   PROCESS_END();
 }
+
