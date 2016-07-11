@@ -77,7 +77,7 @@ static int
 get_light(void)
 {
   return 10 * light_sensor.value(LIGHT_SENSOR_PHOTOSYNTHETIC) / 7;
-}
+}  
 
 static int
 get_proxi(void)
