@@ -1,12 +1,15 @@
-<<<<<<< HEAD
-Sky websense
-============
+#IoT Street Light Example 
+Author: Ryan Hu
 
-This example features a simple webserver running on top of the IPv6 contiki
+This is an Internet of Things example application, which shows how to notify the street lights when there is the human presence is detected by a proximity sensor. The Contiki 3.0 on Ubuntu 14.04 is used to run this example. Each street light is considered as the node with an IPv6 address that can respond to the remote HTTP GET requests for retrieving the sensor values. 
+
+#####Here are some extra instructions on the example application.
+============
+The example features a simple webserver running on top of the IPv6 contiki
 stack on Sky motes to provide sensor values, and with a RPL border router to
 bridge the sensor network to Internet.
 
-To test the example in COOJA under Linux
+#####To test the example in COOJA under Linux
 ----------------------------------------
 
 1. Start COOJA and load the simulation "example-sky-websense.csc"
@@ -22,7 +25,7 @@ To test the example in COOJA under Linux
    Node 2: http://[aaaa::0212:7402:0002:0202]/
 
 
-To run the example on real nodes under Linux
+#####To run the example on real nodes under Linux
 --------------------------------------------
 
 1. Program the nodes with the websense application
@@ -40,8 +43,6 @@ To run the example on real nodes under Linux
 4. Reboot the router and note the router IP address
 
 5. You should now be able to browse to your router node using your web browser:
-   http://[<ROUTER IPv6 ADDRESS>]/. On this page you should see a list of all
-   accessible nodes with their IP adresses.
+   http://[<ROUTER IPv6 ADDRESS>]/. On this page you should see a list of all accessible nodes with their IP addresses.
+
 =======
-# IoT-Street-Light
->>>>>>> 8234ae8a44cdac6fbaf850241c0965aaf6b62fdf
