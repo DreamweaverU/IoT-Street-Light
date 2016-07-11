@@ -1,3 +1,5 @@
+/* The code is derived from the original file with the following disclaimer */
+
 /*
  * Copyright (c) 2010, Swedish Institute of Computer Science.
  * All rights reserved.
@@ -31,25 +33,18 @@
 
 #include "contiki.h"
 #include "httpd-simple.h"
-//#include "dev/sht11/sht11-sensor.h"
 #include "dev/light-sensor.h"
 #include "dev/leds.h"
 #include <stdio.h>
 #include "powertrace.h"
  
-//Collect view
-/*
-#include "net/rpl/rpl.h"
-#include "dev/uart1.h"
-#include "collect-common.h"
-#include "collect-view.h"
-#include "dev/serial-line.h"
-static struct uip_udp_conn *client_conn;
-static uip_ipaddr_t server_ipaddr;
-*/
 
-PROCESS(web_sense_process, "Sense Web Demo");
+PROCESS(sensor_process, "Sensor process");
 PROCESS(webserver_nogui_process, "Web server");
+
+/*********************
+ * Web server process
+ *********************/
 PROCESS_THREAD(webserver_nogui_process, ev, data)
 {
   PROCESS_BEGIN();
@@ -64,35 +59,47 @@ PROCESS_THREAD(webserver_nogui_process, ev, data)
   PROCESS_END();
 }
 
-AUTOSTART_PROCESSES(&web_sense_process,&webserver_nogui_process);//, &collect_common_process);
+AUTOSTART_PROCESSES(&sensor_process, &webserver_nogui_process);
 
-#define HISTORY 16    //Totoal number of historical data points
+#define HISTORY 16		//Totoal number of historical data points
 static int proximity[HISTORY];
 static int light1[HISTORY];
-static int sensors_pos;  
+static int hdata_pos;
+static int new_hdata_pos; 
 
-/*---------------------------------------------------------------------------*/
+/************************************************************
+ * Get the light flux and proximity value from the original readings
+ ************************************************************/
 static int
 get_light(void)
 {
   return 10 * light_sensor.value(LIGHT_SENSOR_PHOTOSYNTHETIC) / 7;
 }
-/*---------------------------------------------------------------------------*/
+
 static int
 get_proxi(void)
 {
-  return rand() % 2; //This is a simulated value of a proximity sensor
+  return rand() % 2;	//This is a simulated value of a proximity sensor
 }
-/*---------------------------------------------------------------------------*/
-static const char *TOP = "<html><head><title>Lighting Control Demo</title></head><body>\n";
+
+/************************************************************
+ * Define the HTML strings for the web page
+ ************************************************************/
+static const char *TOP = "<html><head><title>IoT Street Light Control Example</title></head><body>\n";
 static const char *BOTTOM = "</body></html>\n";
-/*---------------------------------------------------------------------------*/
-/* Only one single request at time */
+
+/************************************************************
+ * Define the HTML content buffer and ADD macro
+ ************************************************************/
 static char buf[256];
 static int blen;
 #define ADD(...) do {                                                   \
     blen += snprintf(&buf[blen], sizeof(buf) - blen, __VA_ARGS__);      \
   } while(0)
+	  
+/************************************************************
+ * Add the chart contents to the HTML buffer
+ ************************************************************/
 static void
 generate_chart(const char *title, const char *unit, int min, int max, int *values)
 {
@@ -103,11 +110,17 @@ generate_chart(const char *title, const char *unit, int min, int max, int *value
       "cht=lc&chs=400x300&chxt=x,x,y,y&chxp=1,50|3,50&"
       "chxr=2,%d,%d|0,0,30&chds=%d,%d&chxl=1:|Time|3:|%s&chd=t:",
       title, min, max, min, max, unit);
+	  
   for(i = 0; i < HISTORY; i++) {
-    ADD("%s%d", i > 0 ? "," : "", values[(sensors_pos + i) % HISTORY]);
+    ADD("%s%d", i > 0 ? "," : "", values[(hdata_pos + i) % HISTORY]);
   }
   ADD("\">");
 }
+
+/************************************************************
+ * Define the protothread to respond to HTTP GET request with the 
+ * contents corresponding to the request parameters
+ ************************************************************/
 static
 PT_THREAD(send_values(struct httpd_state *s))
 {
@@ -151,21 +164,31 @@ PT_THREAD(send_values(struct httpd_state *s))
 
   PSOCK_END(&s->sout);
 }
-/*---------------------------------------------------------------------------*/
+
+
 httpd_simple_script_t
 httpd_simple_get_script(const char *name)
 {
   return send_values;
 }
-/*---------------------------------------------------------------------------*/
-PROCESS_THREAD(web_sense_process, ev, data)
+
+void notify_adjacent_nodes()
+{
+	
+}
+
+/************************************************************
+ * Define the sensor_process process
+ ************************************************************/
+PROCESS_THREAD(sensor_process, ev, data)
 {
   static struct etimer timer;
   PROCESS_BEGIN();
 
-  sensors_pos = 0;
+  hdata_pos = 0;	//reset the historical data point position to 0
+  new_hdata_pos = 0;
 
-  etimer_set(&timer, CLOCK_SECOND * 2);
+  etimer_set(&timer, CLOCK_SECOND * 2); //set the reading every 2 s
   SENSORS_ACTIVATE(light_sensor);
   //SENSORS_ACTIVATE(sht11_sensor);
 
@@ -176,9 +199,19 @@ PROCESS_THREAD(web_sense_process, ev, data)
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
     etimer_reset(&timer);
 
-    light1[sensors_pos] = get_light();;
-    proximity[sensors_pos] = get_proxi();
-    sensors_pos = (sensors_pos + 1) % HISTORY;
+    light1[hdata_pos] = get_light();
+    proximity[hdata_pos] = get_proxi();
+    new_hdata_pos = (hdata_pos + 1) % HISTORY;
+	
+	//Check if there is a change in the proximity value
+	if(hdata_pos != 0) {
+		if(proximity[hdata_pos] != proximity[new_hdata_pos]) {
+			notify_adjacent_nodes();
+		}
+	}
+
+	hdata_pos = new_hdata_pos;
+	
   }
 
   PROCESS_END();
