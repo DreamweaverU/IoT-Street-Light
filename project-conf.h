@@ -48,8 +48,8 @@
 #define WEBSERVER_CONF_CFS_PATHLEN 80
 
 /* Ryan Hu: Reduce the Contiki size*/
-#define UIP_CONF_UDP 0
-#define NETSTACK_CONF_RDC nullrdc_driver
+//#define UIP_CONF_UDP 1
+//#define NETSTACK_CONF_RDC nullrdc_driver
 
 
 
