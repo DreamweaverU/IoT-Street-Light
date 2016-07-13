@@ -49,9 +49,9 @@
       org.contikios.cooja.mspmote.SkyMoteType
       <identifier>skyweb</identifier>
       <description>Wireless sensor node-Sky Mote</description>
-      <source EXPORT="discard">[CONTIKI_DIR]/examples/ipv6/IoT-Street-Light/sky-websense.c</source>
-      <commands EXPORT="discard">make sky-websense.sky TARGET=sky</commands>
-      <firmware EXPORT="copy">[CONTIKI_DIR]/examples/ipv6/IoT-Street-Light/sky-websense.sky</firmware>
+      <source EXPORT="discard">[CONTIKI_DIR]/examples/ipv6/IoT-Street-Light/street-light.c</source>
+      <commands EXPORT="discard">make street-light.sky TARGET=sky</commands>
+      <firmware EXPORT="copy">[CONTIKI_DIR]/examples/ipv6/IoT-Street-Light/street-light.sky</firmware>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.RimeAddress</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.IPAddress</moteinterface>
