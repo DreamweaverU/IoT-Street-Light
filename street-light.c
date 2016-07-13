@@ -1,4 +1,5 @@
 /* The code is derived from the original file with the following disclaimer */
+/* Author: Ryan Hu */
 
 /*
  * Copyright (c) 2010, Swedish Institute of Computer Science.
@@ -179,7 +180,7 @@ httpd_simple_get_script(const char *name)
  * Define the variables and function for broadcast
  ************************************************************/
 static struct simple_udp_connection broadcast_connection;
-static char ip_buf[32];
+static char ip_buf[33];
 
 static void
 print_ipv6_addr(const uip_ipaddr_t *ip_addr) {
@@ -191,6 +192,7 @@ print_ipv6_addr(const uip_ipaddr_t *ip_addr) {
 	len += snprintf(&ip_buf[len], sizeof(ip_buf)-len, "%02x", ip_addr->u8[i]);
     }
 
+	ip_buf[32] ='\0';
 }
 
 static void
