@@ -256,7 +256,7 @@ PROCESS_THREAD(sensor_process, ev, data)
 	
 	//Check if there is a change in the proximity value
 	if(hdata_pos != 0) {
-		if(proximity[hdata_pos] != proximity[new_hdata_pos]) {
+		if(proximity[hdata_pos] == 0 && proximity[new_hdata_pos] == 1) {
 			notify_adjacent_nodes( proximity[hdata_pos], addr);
 		}
 	}
