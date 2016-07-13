@@ -1,4 +1,4 @@
-all: sky-websense
+all: street-light
 
 CONTIKI=../../..
 
