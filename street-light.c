@@ -188,7 +188,7 @@ print_ipv6_addr(const uip_ipaddr_t *ip_addr) {
 	int len = 0;
 	
     for (i = 0; i < 16; i++) {
-        //printf("%02x", ip_addr->u8[i]);
+        
 	len += snprintf(&ip_buf[len], sizeof(ip_buf)-len, "%02x", ip_addr->u8[i]);
     }
 
@@ -207,7 +207,7 @@ receiver(struct simple_udp_connection *c,
   print_ipv6_addr(sender_addr);
   printf("Data received on port %d from [%s]:port %d with length %d\n",
          receiver_port, ip_buf, sender_port, datalen);
-  //printf("IP: %s\n", ip_buf);
+  
   
 }
 
@@ -220,7 +220,7 @@ notify_adjacent_nodes(int i, uip_ipaddr_t addr)
 {   
 	if(i == 1) {
 		printf("Value changed. Sending broadcast notification...");
-		uip_create_linklocal_allnodes_mcast(&addr);
+		uip_create_linklocal_allnodes_mcast(&addr); 
 		simple_udp_sendto(&broadcast_connection, "DIM_LIGHT", 9, &addr);
 	}
 
@@ -232,7 +232,7 @@ notify_adjacent_nodes(int i, uip_ipaddr_t addr)
 PROCESS_THREAD(sensor_process, ev, data)
 {
   static struct etimer timer;
-  uip_ipaddr_t addr;
+  static uip_ipaddr_t addr;
   
   PROCESS_BEGIN();
 
