@@ -69,8 +69,8 @@ AUTOSTART_PROCESSES(&sensor_process, &webserver_nogui_process);
 static int proximity[HISTORY];
 static int light1[HISTORY];
 static int hdata_pos;
-static int new_hdata_pos; 
-
+static int old_hdata_pos; 
+static int flag;
 /************************************************************
  * Get the light flux and proximity value from the original readings
  ************************************************************/
@@ -237,7 +237,7 @@ PROCESS_THREAD(sensor_process, ev, data)
   PROCESS_BEGIN();
 
   hdata_pos = 0;	//reset the historical data point position to 0
-  new_hdata_pos = 0;
+  old_hdata_pos = -1;
 
   etimer_set(&timer, CLOCK_SECOND * 2); //set the reading every 2 s
   SENSORS_ACTIVATE(light_sensor);
@@ -252,16 +252,17 @@ PROCESS_THREAD(sensor_process, ev, data)
 
     light1[hdata_pos] = get_light();
     proximity[hdata_pos] = get_proxi();
-    new_hdata_pos = (hdata_pos + 1) % HISTORY;
+    old_hdata_pos = hdata_pos;
 	
 	//Check if there is a change in the proximity value
-	if(hdata_pos != 0) {
-		if(proximity[hdata_pos] == 0 && proximity[new_hdata_pos] == 1) {
+	if(old_hdata_pos != -1) {
+		if(proximity[old_hdata_pos] == 0 && proximity[hdata_pos] == 1) {
 			notify_adjacent_nodes( proximity[hdata_pos], addr);
 		}
 	}
 
-	hdata_pos = new_hdata_pos;
+    old_hdata_pos = hdata_pos;
+    hdata_pos = (hdata_pos + 1) % HISTORY;
 	
   }
 
