@@ -3,6 +3,8 @@ Author: Ryan Hu
 
 This is an Internet of Things example application, which shows how to notify the street lights when there is the human presence is detected by a proximity sensor. The Contiki 3.0 on Ubuntu 14.04 is used to run this example. Each street light is considered as the node with an IPv6 address that can respond to the remote HTTP GET requests for retrieving the sensor values. 
 
+This application can be used as the support material for the demo of **LinkedIn Learning** course on **IoT Foundations: Low-Power Wireless Networking** at: https://www.linkedin.com/learning/iot-foundations-low-power-wireless-networking.
+
 Here are some extra instructions on the example application.
 ============
 The example features a simple webserver running on top of the IPv6 contiki
